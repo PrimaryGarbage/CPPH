@@ -145,7 +145,7 @@ C_COMPILER=clang
 CXX_COMPILER=clang++
 CMAKE_BUILD_DIR='{{build_dir}}'
 PROJECT_NAME='{{project_name}}'
-LIB_EXTENSION='dll'
+SYSTEM=''
 BUILD_TYPE=Debug
 POSTFIX='-d'
 TEST_PROJECT_PATH="test_project"
@@ -177,11 +177,11 @@ compile_include_files() {
 	echo "Include files folder compiled ($PWD/$INCLUDE_EXPORT_DIR)"
 }
 
-determine_lib_extension() {
+determine_system() {
 	if [[ $(uname -s) == "Linux" ]]; then
-		LIB_EXTENSION='so'
+		SYSTEM='Linux'
 	else
-		LIB_EXTENSION='dll'
+		SYSTEM='Windows'
 	fi
 }
 
@@ -220,6 +220,10 @@ configure() {
 		"CMAKE_EXPORT_COMPILE_COMMANDS=1" \
 		"CMAKE_C_COMPILER=$C_COMPILER" "CMAKE_CXX_COMPILER=$CXX_COMPILER" \
 	)
+
+	if [[ $SYSTEM == "Windows" ]]; then
+		CMAKE_VARS+=("CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=ON")
+	fi
 
 	CMAKE_VARS_STRING=""
 	for v in "${CMAKE_VARS[@]}"; do
@@ -276,7 +280,7 @@ change_build_type() {
 
 ##### Script Start #####
 
-determine_lib_extension
+determine_system
 
 while true
 do
