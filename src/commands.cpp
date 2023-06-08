@@ -8,8 +8,8 @@
 
 namespace cpph
 {
-    enum class ProjectType { none, exe, lib, _len };
-    static const char* ProjectType_str[] {"none", "exe", "lib"};
+    enum class ProjectType { none, exe, lib, test, _len };
+    static const char* ProjectType_str[] {"none", "exe", "lib", "test"};
 
     const char* Command_str[] { "none", "init", "help" };
 
@@ -27,6 +27,8 @@ namespace cpph
 
     void initCommand(ProjectType type, std::string name, std::string stdVersion, std::string cmakeVersion)
     {
+        namespace fs = std::filesystem;
+
         std::string bashSrc;
         std::string cmakeSrc;
         std::string mainSrc(MAIN_SRC);
@@ -46,6 +48,26 @@ namespace cpph
                 cmakeSrc = CMAKE_LIB_SRC;
                 break;
             }
+            case ProjectType::test:
+            {
+                fs::create_directory("./tests");
+
+                std::ofstream testsFile("./tests/tests.cpp", std::ios::trunc);
+                testsFile << TESTS_SRC;
+                testsFile.close();
+
+                std::ofstream testingFile("./tests/testing.hpp", std::ios::trunc);
+                testingFile << TESTING_SRC;
+                testingFile.close();
+
+                std::string makefileSrc = replaceString(MAKEFILE_TEST_SRC, "{{cpp_standard}}", "c++" + stdVersion);
+                std::ofstream makefile("./tests/Makefile", std::ios::trunc);
+                makefile << makefileSrc;
+                makefile.close();
+
+                std::cout << "Test project initialized successfully." << std::endl;
+                return;
+            }
             default:
                 throw CPPH_EXCEPTION("Invalid project type!");
         }
@@ -56,8 +78,6 @@ namespace cpph
         cmakeSrc = replaceString(cmakeSrc, "{{cmake_min_version}}", cmakeVersion);
         cmakeSrc = replaceString(cmakeSrc, "{{cpp_standard}}", stdVersion);
         gitignoreSrc = replaceString(gitignoreSrc, "{{build_dir_name}}", replaceString(buildDir, "./", ""));
-
-        namespace fs = std::filesystem;
 
         fs::create_directory("./src");
         fs::create_directories("./external");

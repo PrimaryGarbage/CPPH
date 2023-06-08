@@ -412,4 +412,72 @@ R"raw(.vscode/
 {{build_dir_name}}
 )raw";
 
+const char* MAKEFILE_TEST_SRC =
+R"raw(CC=clang++
+FLAGS=-Wall -std={{cpp_standard}} -I ./
+TESTS_BIN=tests_out
+
+.DEFAULT_GOAL:=tests
+.PHONY: tests
+
+tests:
+	${CC} ${FLAGS} tests.cpp -o ${TESTS_BIN}
+	@./${TESTS_BIN}
+	@rm ${TESTS_BIN}
+
+clean:
+	rm ${TESTS_BIN}
+)raw";
+
+const char* TESTS_SRC = 
+R"raw(#include "testing.hpp"
+#include <iostream>
+
+int main()
+{
+    try
+    {
+        //////////////////// 
+		// executeTests();//
+		////////////////////
+
+        std::cout << "Tests finished succesfully!" << std::endl;
+    }
+    catch(prim::TestException ex)
+    {
+        std::cout << "Test run failed:\n";
+        std::cout << ex.what() << std::endl;
+    }
+    return 0;
+}
+)raw";
+
+const char* TESTING_SRC = 
+R"raw(#ifndef __TESTING_HPP__
+#define __TESTING_HPP__
+
+#include <string>
+
+namespace prim
+{
+    class TestException
+    {
+    private:
+        std::string message;
+    public:
+        TestException() : TestException("Test failed.") {}
+        TestException(std::string message) : message(message) {}
+    
+        inline std::string what() const noexcept
+        {
+            return message;
+        }
+    };
+
+    #define ASSERT(expression, message) if(!(expression)) throw prim::TestException(std::string(message) + " >> File: " + __FILE__ + "; Line: " + std::to_string(__LINE__));
+}
+
+#endif // __TESTING_HPP__
+)raw";
+
 #endif // __SOURCES_HPP__
