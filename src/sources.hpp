@@ -23,6 +23,7 @@ CMAKE_BUILD_DIR='{{build_dir}}'
 PROJECT_NAME='{{project_name}}'
 BUILD_TYPE=Debug
 POSTFIX='-d'
+GENERATOR=Ninja
 
 configure() {
 	echo -e "Configuring Cmake..."
@@ -39,7 +40,13 @@ configure() {
 
 	echo "CMake variables: $CMAKE_VARS_STRING"
 
-	cmake -G Ninja $CMAKE_VARS_STRING -S . -B $CMAKE_BUILD_DIR
+	GENERATOR_STRING=''
+
+	if [[ $GENERATOR ]]; then
+		GENERATOR_STRING="-G $GENERATOR"
+	fi
+
+	cmake $GENERATOR_STRING $CMAKE_VARS_STRING -S . -B $CMAKE_BUILD_DIR
 }
 
 build() {
