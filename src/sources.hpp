@@ -487,4 +487,37 @@ namespace prim
 #endif // __TESTING_HPP__
 )raw";
 
+const char* VSCODEDEBUG_LLDB_SRC = 
+R"raw({
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceRoot}/test_project/bin/{{project_name}}-d",
+            "MIMode": "lldb",
+            "cwd": "${workspaceFolder}/bin",
+            "miDebuggerArgs": "-dereferencePointers"
+        }
+    ]
+}
+)raw";
+
+const char* VSCODEDEBUG_GDB_SRC = 
+R"raw({
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug",
+            "request": "launch",
+            "type": "cppdbg",
+            "MIMode": "gdb",
+            "program": "${workspaceRoot}/bin/{{project_name}}-d",
+            "cwd": "${workspaceRoot}/bin"
+        } 
+    ]
+}
+)raw";
+
 #endif // __SOURCES_HPP__

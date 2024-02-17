@@ -8,7 +8,8 @@
 
 namespace cpph
 {
-    enum class Command { none, init, help, _len };
+    enum class Command { none, init, help, vscodedebug, _len };
+    inline const char* Command_str[] { "none", "init", "help" };
 
     struct CommandContext
     {

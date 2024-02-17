@@ -11,7 +11,9 @@ namespace cpph
     enum class ProjectType { none, exe, lib, test, _len };
     static const char* ProjectType_str[] {"none", "exe", "lib", "test"};
 
-    const char* Command_str[] { "none", "init", "help" };
+    enum class DebuggerType { none, gdb, lldb, _len };
+    static const char* DebuggerType_str[] {"none", "gdb", "lldb"};
+
 
     static const char* defaultProjectName = "NewProject";
     static const char* defaultStdVersion = "17";
@@ -101,6 +103,36 @@ namespace cpph
         std::cout << "Project initialized successfully." << std::endl;
     }
 
+    void vsCodeDebugCommand(DebuggerType type)
+    {
+        namespace fs = std::filesystem;
+
+        fs::create_directory("./.vscode");
+        std::string fileSrc;
+
+        switch(type)
+        {
+            case DebuggerType::gdb:
+                {
+                    fileSrc = VSCODEDEBUG_GDB_SRC;
+                    break;
+                }
+            case DebuggerType::lldb:
+                {
+                    fileSrc = VSCODEDEBUG_LLDB_SRC;
+                    break;
+                }
+            default:
+                throw CPPH_EXCEPTION("Invalid debugger type!");
+        }
+
+        std::ofstream file("./.vscode/launch.json");
+        file << fileSrc;
+        file.close();
+
+        std::cout << "VS Code launch file created successfully." << std::endl;
+    }
+
     ProjectType parseProjectType(std::string str)
     {
         for(int i = 0; i < (int)ProjectType::_len; ++i)
@@ -110,6 +142,17 @@ namespace cpph
         }
 
         return ProjectType::none;
+    }
+
+    DebuggerType parseDebuggerType(std::string str)
+    {
+        for(int i = 0; i < (int)DebuggerType::_len; ++i)
+        {
+            if(str == DebuggerType_str[i])
+                return (DebuggerType)i;
+        }
+
+        return DebuggerType::none;
     }
 
     CommandContext createCommandContext(int argc, char* argv[])
@@ -189,6 +232,19 @@ namespace cpph
 
                     initCommand(type, name, stdVersion, cmakeVersion);
                     break;
+                }
+            case Command::vscodedebug:
+                {
+                    DebuggerType type = context.args.contains("type") ? parseDebuggerType(context.args["type"].front()) :
+                        context.args.contains("t")? parseDebuggerType(context.args["t"].front()) : DebuggerType::none;
+
+                    if(type == DebuggerType::none)
+                    {
+                        std::cout << "Invalid debugger type." << std::endl;
+                        break;
+                    }
+
+                    
                 }
             default:
                 throw CPPH_EXCEPTION("Forbidden command value.");
