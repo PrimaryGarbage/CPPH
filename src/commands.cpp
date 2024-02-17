@@ -103,7 +103,7 @@ namespace cpph
         std::cout << "Project initialized successfully." << std::endl;
     }
 
-    void vsCodeDebugCommand(DebuggerType type)
+    void vsCodeDebugCommand(DebuggerType type, std::string projectName)
     {
         namespace fs = std::filesystem;
 
@@ -125,6 +125,8 @@ namespace cpph
             default:
                 throw CPPH_EXCEPTION("Invalid debugger type!");
         }
+
+        replaceString(fileSrc, "{{project_name}}", projectName);
 
         std::ofstream file("./.vscode/launch.json");
         file << fileSrc;
@@ -238,13 +240,17 @@ namespace cpph
                     DebuggerType type = context.args.contains("type") ? parseDebuggerType(context.args["type"].front()) :
                         context.args.contains("t")? parseDebuggerType(context.args["t"].front()) : DebuggerType::lldb;
 
+                    std::string name = context.args.contains("name") ? context.args["name"].front() : 
+                        context.args.contains("n") ? context.args["n"].front() : defaultProjectName;
+
                     if(type == DebuggerType::none)
                     {
                         std::cout << "Invalid debugger type." << std::endl;
                         break;
                     }
 
-                    
+                    vsCodeDebugCommand(type, name);
+                    break;
                 }
             default:
                 throw CPPH_EXCEPTION("Forbidden command value.");
