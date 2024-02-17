@@ -495,7 +495,7 @@ R"raw({
             "name": "Debug",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceRoot}/test_project/bin/{{project_name}}-d",
+            "program": "${workspaceRoot}/bin/{{project_name}}-d",
             "MIMode": "lldb",
             "cwd": "${workspaceFolder}/bin",
             "miDebuggerArgs": "-dereferencePointers"
