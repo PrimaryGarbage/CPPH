@@ -126,7 +126,7 @@ namespace cpph
                 throw CPPH_EXCEPTION("Invalid debugger type!");
         }
 
-        replaceString(fileSrc, "{{project_name}}", projectName);
+        fileSrc = replaceString(fileSrc, "{{project_name}}", projectName);
 
         std::ofstream file("./.vscode/launch.json");
         file << fileSrc;
