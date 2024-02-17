@@ -493,12 +493,10 @@ R"raw({
     "configurations": [
         {
             "name": "Debug",
-            "type": "cppdbg",
+            "type": "lldb",
             "request": "launch",
-            "program": "${workspaceRoot}/bin/{{project_name}}-d",
-            "MIMode": "lldb",
+            "program": "${workspaceRoot}/bin/cheater-d",
             "cwd": "${workspaceFolder}/bin",
-            "miDebuggerArgs": "-dereferencePointers"
         }
     ]
 }
