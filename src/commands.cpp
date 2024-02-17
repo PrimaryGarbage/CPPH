@@ -23,7 +23,7 @@ namespace cpph
     {
         std::cout << "\nCommands:\n";
         std::cout << "  init [-t, --type] [-n, --name] [-s --std] [c, --cmake-version] => init new project,\n";
-        std::cout << " vscode debug [-t, --type]\n";
+        std::cout << "  vscodedebug [-t, --type] => create launch.json file for vscode,\n";
         std::cout << "  help => print help,\n";
     }
 
