@@ -14,7 +14,6 @@ namespace cpph
     enum class DebuggerType { none, gdb, lldb, _len };
     static const char* DebuggerType_str[] {"none", "gdb", "lldb"};
 
-
     static const char* defaultProjectName = "NewProject";
     static const char* defaultStdVersion = "17";
     static const char* defaultCmakeVersion = "3.22";
@@ -24,6 +23,7 @@ namespace cpph
     {
         std::cout << "\nCommands:\n";
         std::cout << "  init [-t, --type] [-n, --name] [-s --std] [c, --cmake-version] => init new project,\n";
+        std::cout << " vscode debug [-t, --type]\n";
         std::cout << "  help => print help,\n";
     }
 
@@ -236,7 +236,7 @@ namespace cpph
             case Command::vscodedebug:
                 {
                     DebuggerType type = context.args.contains("type") ? parseDebuggerType(context.args["type"].front()) :
-                        context.args.contains("t")? parseDebuggerType(context.args["t"].front()) : DebuggerType::none;
+                        context.args.contains("t")? parseDebuggerType(context.args["t"].front()) : DebuggerType::lldb;
 
                     if(type == DebuggerType::none)
                     {
