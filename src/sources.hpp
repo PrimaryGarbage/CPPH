@@ -495,7 +495,7 @@ R"raw({
             "name": "Debug",
             "type": "lldb",
             "request": "launch",
-            "program": "${workspaceRoot}/bin/cheater-d",
+            "program": "${workspaceRoot}/bin/ExeName-d",
             "cwd": "${workspaceFolder}/bin",
         }
     ]
