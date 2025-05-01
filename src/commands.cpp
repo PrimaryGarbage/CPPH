@@ -19,15 +19,17 @@ namespace cpph
     static const char* defaultCmakeVersion = "3.22";
     static const char* buildDir = "./bin";
 
-    void helpCommand()
+    static void helpCommand()
     {
         std::cout << "\nCommands:\n";
         std::cout << "  init [-t, --type] [-n, --name] [-s --std] [c, --cmake-version] => init new project,\n";
+        std::cout << "    -> valid types: " + toString(ProjectType_str + 1, (size_t)ProjectType::_len - 1) + ",\n";
         std::cout << "  vscodedebug [-t, --type] => create launch.json file for vscode,\n";
+        std::cout << "    -> valid types: " + toString(DebuggerType_str + 1, (size_t)DebuggerType::_len - 1) + ",\n";
         std::cout << "  help => print help,\n";
     }
 
-    void initCommand(ProjectType type, std::string name, std::string stdVersion, std::string cmakeVersion)
+    static void initCommand(ProjectType type, std::string name, std::string stdVersion, std::string cmakeVersion)
     {
         namespace fs = std::filesystem;
 
@@ -103,7 +105,7 @@ namespace cpph
         std::cout << "Project initialized successfully." << std::endl;
     }
 
-    void vsCodeDebugCommand(DebuggerType type, std::string projectName)
+    static void vsCodeDebugCommand(DebuggerType type, std::string projectName)
     {
         namespace fs = std::filesystem;
 
@@ -135,7 +137,7 @@ namespace cpph
         std::cout << "VS Code launch file created successfully." << std::endl;
     }
 
-    ProjectType parseProjectType(std::string str)
+    static ProjectType parseProjectType(std::string str)
     {
         for(int i = 0; i < (int)ProjectType::_len; ++i)
         {
@@ -146,7 +148,7 @@ namespace cpph
         return ProjectType::none;
     }
 
-    DebuggerType parseDebuggerType(std::string str)
+    static DebuggerType parseDebuggerType(std::string str)
     {
         for(int i = 0; i < (int)DebuggerType::_len; ++i)
         {
@@ -256,6 +258,4 @@ namespace cpph
                 throw CPPH_EXCEPTION("Forbidden command value.");
         }
     }
-
-
 }

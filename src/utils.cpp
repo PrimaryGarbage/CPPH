@@ -1,4 +1,5 @@
 #include "utils.hpp"
+#include <string.h>
 
 namespace prim
 {
@@ -66,5 +67,26 @@ namespace cpph
             pos += with.length();
         }
         return std::move(result);
+    }
+
+    std::string toString(const char* array[], size_t length)
+    {
+        size_t resultStringLength = 0;
+        for(size_t i = 0; i < length; ++i)
+        {
+            if(array[i] == nullptr) continue;
+            resultStringLength += strlen(array[i]) + 2;
+        }
+
+        std::string result;
+        result.reserve(resultStringLength);
+
+        for(size_t i = 0; i < length; ++i)
+        {
+            result.append(array[i]);
+            result.append(", ");
+        }
+
+        return result.substr(0, result.length() - 2);
     }
 }

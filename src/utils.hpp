@@ -11,6 +11,7 @@ namespace cpph
     std::string replaceString(std::string_view str, std::string_view replace, std::string_view with);
     std::string toLower(const std::string& str);
     bool contains(const std::string_view str, const std::string& substr);
+    std::string toString(const char* array[], size_t lenght);
 }
 
 #endif // __UTILS_HPP__
