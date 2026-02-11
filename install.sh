@@ -13,8 +13,8 @@ esac
 echo "Installing for \"${machine}\""
 
 case $machine in 
-    Linux | Max | Cygwin)    cp ./bin/cpph ~/.local/bin/;;
-    MinGw | MSys)            cp ./bin/cpph.exe ~/bin/;;
+    Linux | Max | Cygwin)    sudo cp ./bin/cpph ~/.local/bin/;;
+    MinGw | MSys)            sudo cp ./bin/cpph.exe ~/bin/;;
     *)                       echo "Unable to install for this machine. Machine: ${machine}"
 esac
 

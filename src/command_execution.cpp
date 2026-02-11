@@ -9,12 +9,12 @@
 
 namespace cpph
 {
-    static const char* buildDir = "./bin";
+    static const char* buildDir = "bin";
 
     static void helpCommand()
     {
         std::cout << "\nCommands:\n";
-        std::cout << "  init [-t, --type] [-n, --name] [-l --lang] [-s --std] [c, --cmake-version] => init new project,\n";
+        std::cout << "  init [-t, --type] [-n, --name] [-l --lang] [-cs --cstd] [-cpps --cppstd] [c, --cmake-version] => init new project,\n";
         std::cout << "    -> valid project types: " + toString(ProjectType_str + 1, (size_t)ProjectType::_len - 1) + ",\n";
         std::cout << "    -> valid languages: " + toString(Language_str + 1, (size_t)Language::_len - 1) + ",\n";
         std::cout << "    -> other flags can have any string value.\n";
@@ -23,7 +23,8 @@ namespace cpph
         std::cout << "  help => print help.\n";
     }
 
-    static void initCommand(ProjectType type, std::string name, std::string stdVersion, std::string cmakeVersion)
+    static void initCommand(ProjectType type, const std::string& name, const std::string& cStdVersion, const std::string& cppStdVersion,
+        const std::string& cmakeVersion, Language language)
     {
         namespace fs = std::filesystem;
 
@@ -51,14 +52,14 @@ namespace cpph
                 fs::create_directory("./tests");
 
                 std::ofstream testsFile("./tests/tests.cpp", std::ios::trunc);
-                testsFile << TESTS_SRC;
+                testsFile << TESTS_SRC_CPP;
                 testsFile.close();
 
                 std::ofstream testingFile("./tests/testing.hpp", std::ios::trunc);
-                testingFile << TESTING_SRC;
+                testingFile << TESTING_SRC_CPP;
                 testingFile.close();
 
-                std::string makefileSrc = replaceString(MAKEFILE_TEST_SRC, "{{cpp_standard}}", "c++" + stdVersion);
+                std::string makefileSrc = replaceString(MAKEFILE_TEST_SRC, "{{cpp_standard}}", "c++" + cppStdVersion);
                 std::ofstream makefile("./tests/Makefile", std::ios::trunc);
                 makefile << makefileSrc;
                 makefile.close();
@@ -70,12 +71,15 @@ namespace cpph
                 throw CPPH_EXCEPTION("Invalid project type!");
         }
 
-        bashSrc = replaceString(bashSrc, "{{project_name}}", name);
-        bashSrc = replaceString(bashSrc, "{{build_dir}}", buildDir);
-        cmakeSrc = replaceString(cmakeSrc, "{{project_name}}", name);
-        cmakeSrc = replaceString(cmakeSrc, "{{cmake_min_version}}", cmakeVersion);
-        cmakeSrc = replaceString(cmakeSrc, "{{cpp_standard}}", stdVersion);
-        gitignoreSrc = replaceString(gitignoreSrc, "{{build_dir_name}}", replaceString(buildDir, "./", ""));
+        replaceString(bashSrc, "{{project_name}}", name);
+        replaceString(bashSrc, "{{build_dir}}", std::string("./") + buildDir);
+        replaceString(cmakeSrc, "{{project_name}}", name);
+        replaceString(cmakeSrc, "{{cmake_min_version}}", cmakeVersion);
+        replaceString(cmakeSrc, "{{c_standard}}", cStdVersion);
+        replaceString(cmakeSrc, "{{cpp_standard}}", cppStdVersion);
+        replaceString(cmakeSrc, "{{language}}", Language_str[static_cast<int>(language)]);
+        replaceString(gitignoreSrc, "{{build_dir_name}}", buildDir);
+
 
         fs::create_directory("./src");
         fs::create_directories("./external");
@@ -88,7 +92,8 @@ namespace cpph
         cmakeFile << cmakeSrc;
         cmakeFile.close();
 
-        std::ofstream mainFile("./src/main.cpp", std::ios::trunc);
+        const char* mainFilePath = language == Language::c ? "./src/main.c" : "./src/main.cpp";
+        std::ofstream mainFile(mainFilePath, std::ios::trunc);
         mainFile << mainSrc;
         mainFile.close();
 
@@ -122,7 +127,7 @@ namespace cpph
                 throw CPPH_EXCEPTION("Invalid debugger type!");
         }
 
-        fileSrc = replaceString(fileSrc, "{{project_name}}", projectName);
+        replaceString(fileSrc, "{{project_name}}", projectName);
 
         std::ofstream file("./.vscode/launch.json");
         file << fileSrc;
@@ -195,10 +200,11 @@ namespace cpph
                     Language language = extractLanguageFlag(context->args);
 
                     std::string name = extractProjectNameFlag(context->args);
-                    std::string stdVersion = extractStdFlag(context->args);
+                    std::string cStdVersion = extractCStdFlag(context->args);
+                    std::string cppStdVersion = extractCppStdFlag(context->args);
                     std::string cmakeVersion = extractCmakeVersionFlag(context->args);
 
-                    initCommand(type, name, stdVersion, cmakeVersion);
+                    initCommand(type, name, cStdVersion, cppStdVersion, cmakeVersion, language);
                     break;
                 }
             case Command::vscodedebug:

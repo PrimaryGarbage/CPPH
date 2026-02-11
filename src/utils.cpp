@@ -54,7 +54,7 @@ namespace cpph
         return false;
     }
 
-    std::string replaceString(std::string_view str, std::string_view replace, std::string_view with) 
+    std::string replaceString(const char* str, std::string_view replace, std::string_view with) 
     {
         std::string result(str);
         size_t size = replace.length();
@@ -65,6 +65,17 @@ namespace cpph
             pos += with.length();
         }
         return std::move(result);
+    }
+
+    void replaceString(std::string& str, std::string_view replace, std::string_view with)
+    {
+        size_t size = replace.length();
+        size_t pos = 0;
+        while((pos = str.find(replace, pos)) != std::string::npos)
+        {
+            str.replace(pos, size, with);
+            pos += with.length();
+        }
     }
 
     std::string toString(const char* array[], size_t length)

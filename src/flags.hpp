@@ -22,7 +22,6 @@ namespace cpph
     enum class Language { none, c, cpp, _len };
     static const char* Language_str[] {"none", "c", "cpp"};
 
-
     Command parseCommand(const std::string& str) noexcept;
 
     ProjectType extractProjectTypeFlag(const Args& args) noexcept;
@@ -30,7 +29,8 @@ namespace cpph
     Language extractLanguageFlag(const Args& args) noexcept;
     const std::string& extractProjectNameFlag(const Args& args) noexcept;
     const std::string& extractCmakeVersionFlag(const Args& args) noexcept;
-    const std::string& extractStdFlag(const Args& args) noexcept;
+    const std::string& extractCStdFlag(const Args& args) noexcept;
+    const std::string& extractCppStdFlag(const Args& args) noexcept;
 }
 
 #endif // __FLAGS_HPP__

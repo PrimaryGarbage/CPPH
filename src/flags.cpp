@@ -13,7 +13,7 @@ namespace cpph
         return Command::none;
     }
 
-    ProjectType parseProjectType(const std::string& str)
+    static ProjectType parseProjectType(const std::string& str)
     {
         for(int i = 0; i < (int)ProjectType::_len; ++i)
         {
@@ -24,7 +24,7 @@ namespace cpph
         return ProjectType::none;
     }
 
-    DebuggerType parseDebuggerType(const std::string& str)
+    static DebuggerType parseDebuggerType(const std::string& str)
     {
         for(int i = 0; i < (int)DebuggerType::_len; ++i)
         {
@@ -35,7 +35,7 @@ namespace cpph
         return DebuggerType::none;
     }
 
-    Language parseLanguage(const std::string& str) noexcept
+    static Language parseLanguage(const std::string& str) noexcept
     {
         for(int i = 0; i < (int)Language::_len; ++i)
         {
@@ -52,7 +52,10 @@ namespace cpph
 
         for(auto& flag : flagNames)
         {
-            ProjectType result = parseProjectType(args.at(flag).front());
+            auto iter = args.find(flag);
+            if(iter == args.end()) continue;
+
+            ProjectType result = parseProjectType(iter->second.front());
             if(result != ProjectType::none) return result;
         }
         
@@ -65,7 +68,10 @@ namespace cpph
 
         for(auto& flag : flagNames)
         {
-            DebuggerType result = parseDebuggerType(args.at(flag).front());
+            auto iter = args.find(flag);
+            if(iter == args.end()) continue;
+
+            DebuggerType result = parseDebuggerType(iter->second.front());
             if(result != DebuggerType::none) return result;
         }
         
@@ -79,7 +85,10 @@ namespace cpph
 
         for(auto& flag : flagNames)
         {
-            Language result = parseLanguage(args.at(flag).front());
+            auto iter = args.find(flag);
+            if(iter == args.end()) continue;
+
+            Language result = parseLanguage(iter->second.front());
             if(result != Language::none) return result;
         }
         
@@ -92,7 +101,10 @@ namespace cpph
 
         for(auto& flag : flagNames)
         {
-            const std::string& result = args.at(flag).front();
+            auto iter = args.find(flag);
+            if(iter == args.end()) continue;
+
+            const std::string& result = iter->second.front();
             if(!result.empty()) return result;
         }
         
@@ -109,15 +121,23 @@ namespace cpph
 
     const std::string& extractCmakeVersionFlag(const Args& args) noexcept
     {
-        static const std::vector<std::string> flagNames{ "s", "std" };
+        static const std::vector<std::string> flagNames{ "c", "cmake-version" };
         static const std::string defaultValue { "3.22" };
 
         return extractStringFlag(args, flagNames, defaultValue);
     }
 
-    const std::string& extractStdFlag(const Args& args) noexcept
+    const std::string& extractCStdFlag(const Args& args) noexcept
     {
-        static const std::vector<std::string> flagNames{ "c", "cmake-version" };
+        static const std::vector<std::string> flagNames{ "cs", "c-s", "cstd", "c-std" };
+        static const std::string defaultValue { "23" };
+
+        return extractStringFlag(args, flagNames, defaultValue);
+    }
+
+    const std::string& extractCppStdFlag(const Args& args) noexcept
+    {
+        static const std::vector<std::string> flagNames{ "cpps", "cpp-s", "cppstd", "cpp-std" };
         static const std::string defaultValue { "17" };
 
         return extractStringFlag(args, flagNames, defaultValue);

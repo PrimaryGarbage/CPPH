@@ -8,7 +8,8 @@ namespace cpph
 {
     std::vector<std::string> splitString(std::string str, std::string delimiter);
     std::vector<std::string> splitString(const std::string& str, const char delimiter);
-    std::string replaceString(std::string_view str, std::string_view replace, std::string_view with);
+    std::string replaceString(const char* str, std::string_view replace, std::string_view with);
+    void replaceString(std::string& str, std::string_view replace, std::string_view with);
     std::string toLower(const std::string& str);
     bool contains(const std::string& str, const std::string& substr);
     std::string toString(const char* array[], size_t lenght);

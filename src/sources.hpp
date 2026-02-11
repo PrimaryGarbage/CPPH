@@ -337,13 +337,14 @@ const char* CMAKE_EXE_SRC =
 R"raw(cmake_minimum_required(VERSION {{cmake_min_version}})
 project({{project_name}} VERSION 1.0 LANGUAGES C CXX)
 
+set(CMAKE_C_STANDARD {{c_standard}})
 set(CMAKE_CXX_STANDARD {{cpp_standard}})
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
 
 ### Put the names of your source files here ###
 set(SRC_FILES 
-    main.cpp
+    main.{{language}}
 )
 
 list(TRANSFORM SRC_FILES PREPEND "src/")
@@ -362,20 +363,25 @@ target_include_directories(${PROJECT_NAME} PRIVATE external)
 # target_link_options(${PROJECT_NAME} PRIVATE -static-libgcc -static-libstdc++)
 
 ### Use this line to link external libraries
-# target_link_libraries(${PROJECT_NAME} your_library_name)
+if(WIN32)
+	target_link_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/external/lib/win)
+elseif(UNIX)
+	target_link_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/external/lib/linux)
+endif()
 )raw";
 
 const char* CMAKE_LIB_SRC =
 R"raw(cmake_minimum_required(VERSION {{cmake_min_version}})
 project({{project_name}} VERSION 1.0 LANGUAGES C CXX)
 
+set(CMAKE_C_STANDARD {{c_standard}})
 set(CMAKE_CXX_STANDARD {{cpp_standard}})
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
 
 ### Put the names of your source files here ###
 set(SRC_FILES 
-    main.cpp
+    main.{{language}}
 )
 
 list(TRANSFORM SRC_FILES PREPEND "src/")
@@ -416,7 +422,7 @@ R"raw(int main(int argc, char* argv[])
 const char* GITIGNORE_SRC =
 R"raw(.vscode/
 *.code-workspace
-{{build_dir_name}}
+{{build_dir_name}}/
 )raw";
 
 const char* MAKEFILE_TEST_SRC =
@@ -436,7 +442,7 @@ clean:
 	rm ${TESTS_BIN}
 )raw";
 
-const char* TESTS_SRC = 
+const char* TESTS_SRC_CPP = 
 R"raw(#include "testing.hpp"
 #include <iostream>
 
@@ -459,7 +465,7 @@ int main()
 }
 )raw";
 
-const char* TESTING_SRC = 
+const char* TESTING_SRC_CPP = 
 R"raw(#ifndef __TESTING_HPP__
 #define __TESTING_HPP__
 
