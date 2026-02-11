@@ -1,5 +1,5 @@
 #include "exception.hpp"
-#include "commands.hpp"
+#include "command_execution.hpp"
 #include <iostream>
 
 
@@ -7,8 +7,8 @@ int main(int argc, char* argv[])
 {
     try
     {
-        cpph::CommandContext context = cpph::createCommandContext(argc, argv);
-        cpph::executeCommand(context);
+        auto context = cpph::createCommandContext(argc, argv);
+        cpph::executeCommand(context.get());
     }
     catch (cpph::Exception ex)
     {

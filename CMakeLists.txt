@@ -8,7 +8,8 @@ set(BUILD_SHARED_LIBS OFF)
 
 set(PRIMARY_SRC
 	main.cpp
-    commands.hpp commands.cpp
+    command_execution.hpp command_execution.cpp
+	flags.hpp flags.cpp
     utils.hpp utils.cpp
     exception.hpp
 	)

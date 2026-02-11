@@ -1,32 +1,26 @@
-#include "commands.hpp"
+#include "command_execution.hpp"
 #include "exception.hpp"
 #include "utils.hpp"
 #include "sources.hpp"
 #include <iostream>
 #include <filesystem>
 #include <fstream>
+#include "flags.hpp"
 
 namespace cpph
 {
-    enum class ProjectType { none, exe, lib, test, _len };
-    static const char* ProjectType_str[] {"none", "exe", "lib", "test"};
-
-    enum class DebuggerType { none, gdb, lldb, _len };
-    static const char* DebuggerType_str[] {"none", "gdb", "lldb"};
-
-    static const char* defaultProjectName = "NewProject";
-    static const char* defaultStdVersion = "17";
-    static const char* defaultCmakeVersion = "3.22";
     static const char* buildDir = "./bin";
 
     static void helpCommand()
     {
         std::cout << "\nCommands:\n";
-        std::cout << "  init [-t, --type] [-n, --name] [-s --std] [c, --cmake-version] => init new project,\n";
-        std::cout << "    -> valid types: " + toString(ProjectType_str + 1, (size_t)ProjectType::_len - 1) + ",\n";
+        std::cout << "  init [-t, --type] [-n, --name] [-l --lang] [-s --std] [c, --cmake-version] => init new project,\n";
+        std::cout << "    -> valid project types: " + toString(ProjectType_str + 1, (size_t)ProjectType::_len - 1) + ",\n";
+        std::cout << "    -> valid languages: " + toString(Language_str + 1, (size_t)Language::_len - 1) + ",\n";
+        std::cout << "    -> other flags can have any string value.\n";
         std::cout << "  vscodedebug [-t, --type] => create launch.json file for vscode,\n";
         std::cout << "    -> valid types: " + toString(DebuggerType_str + 1, (size_t)DebuggerType::_len - 1) + ",\n";
-        std::cout << "  help => print help,\n";
+        std::cout << "  help => print help.\n";
     }
 
     static void initCommand(ProjectType type, std::string name, std::string stdVersion, std::string cmakeVersion)
@@ -137,49 +131,20 @@ namespace cpph
         std::cout << "VS Code launch file created successfully." << std::endl;
     }
 
-    static ProjectType parseProjectType(std::string str)
+
+    std::unique_ptr<CommandContext> createCommandContext(int argc, char* argv[])
     {
-        for(int i = 0; i < (int)ProjectType::_len; ++i)
-        {
-            if(str == ProjectType_str[i])
-                return (ProjectType)i;
-        }
-
-        return ProjectType::none;
-    }
-
-    static DebuggerType parseDebuggerType(std::string str)
-    {
-        for(int i = 0; i < (int)DebuggerType::_len; ++i)
-        {
-            if(str == DebuggerType_str[i])
-                return (DebuggerType)i;
-        }
-
-        return DebuggerType::none;
-    }
-
-    CommandContext createCommandContext(int argc, char* argv[])
-    {
-        CommandContext context;
+        CommandContext* context = new CommandContext();
 
         // parse command
         if(argc == 1)
         {
-            context.command = Command::help;
+            context->command = Command::help;
         }
         else
         {
             std::string commandStr(argv[1]);
-            context.command = Command::none;
-            for(int i = 0; i < (int)Command::_len; ++i)
-            {
-                if(commandStr == Command_str[i])
-                {
-                    context.command = (Command)i;
-                    break;
-                }
-            }
+            context->command = parseCommand(commandStr);
         }
 
         // parse args
@@ -196,16 +161,16 @@ namespace cpph
             }
             else
             {
-                context.args[flag].push_back(token);
+                context->args[flag].push_back(token);
             }
         }
 
-        return context;
+        return std::unique_ptr<CommandContext>(context);
     }
 
-    void executeCommand(CommandContext context)
+    void executeCommand(const CommandContext* context)
     {
-        switch(context.command)
+        switch(context->command)
         {
             case Command::none:
                 {
@@ -219,31 +184,26 @@ namespace cpph
                 }
             case Command::init:
                 {
-                    ProjectType type = context.args.contains("type") ? parseProjectType(context.args["type"].front()) : 
-                        context.args.contains("t")? parseProjectType(context.args["t"].front()) : ProjectType::exe;
+                    ProjectType type = extractProjectTypeFlag(context->args);
+
                     if(type == ProjectType::none) 
                     {
                         std::cout << "Invalid project type." << std::endl;
                         break;
                     }
 
-                    std::string name = context.args.contains("name") ? context.args["name"].front() : 
-                        context.args.contains("n") ? context.args["n"].front() : defaultProjectName;
-                    std::string stdVersion = context.args.contains("std") ? context.args["std"].front() :
-                        context.args.contains("s") ? context.args["s"].front() : defaultStdVersion; 
-                    std::string cmakeVersion = context.args.contains("cmake-version") ? context.args["cmake-version"].front() :
-                        context.args.contains("c") ? context.args["c"].front() : defaultCmakeVersion;
+                    Language language = extractLanguageFlag(context->args);
+
+                    std::string name = extractProjectNameFlag(context->args);
+                    std::string stdVersion = extractStdFlag(context->args);
+                    std::string cmakeVersion = extractCmakeVersionFlag(context->args);
 
                     initCommand(type, name, stdVersion, cmakeVersion);
                     break;
                 }
             case Command::vscodedebug:
                 {
-                    DebuggerType type = context.args.contains("type") ? parseDebuggerType(context.args["type"].front()) :
-                        context.args.contains("t")? parseDebuggerType(context.args["t"].front()) : DebuggerType::lldb;
-
-                    std::string name = context.args.contains("name") ? context.args["name"].front() : 
-                        context.args.contains("n") ? context.args["n"].front() : defaultProjectName;
+                    DebuggerType type = extractDebuggerTypeFlag(context->args);
 
                     if(type == DebuggerType::none)
                     {
@@ -251,11 +211,13 @@ namespace cpph
                         break;
                     }
 
+                    std::string name = extractProjectNameFlag(context->args);
+
                     vsCodeDebugCommand(type, name);
                     break;
                 }
             default:
-                throw CPPH_EXCEPTION("Forbidden command value.");
+                throw CPPH_EXCEPTION("Invalid command value.");
         }
     }
 }

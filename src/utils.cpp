@@ -1,7 +1,7 @@
 #include "utils.hpp"
 #include <string.h>
 
-namespace prim
+namespace cpph
 {
     std::vector<std::string> splitString(std::string str, std::string delimiter)
     {
@@ -53,9 +53,7 @@ namespace prim
         }
         return false;
     }
-}
-namespace cpph
-{
+
     std::string replaceString(std::string_view str, std::string_view replace, std::string_view with) 
     {
         std::string result(str);
